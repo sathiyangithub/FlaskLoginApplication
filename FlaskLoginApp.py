@@ -1,8 +1,7 @@
 from functools import wraps
 
-import gc
-from flask_login import user_loaded_from_header, login_user, LoginManager, UserMixin, user_logged_in, user_logged_out
-from flask import g, Flask, request, redirect, abort, Response, render_template, flash, session, url_for
+from flask_login import login_user, LoginManager, UserMixin, logout_user
+from flask import g, Flask, request, Response, render_template, flash, session, url_for
 
 app = Flask(__name__)
 
@@ -16,10 +15,9 @@ login_manager.init_app(app)
 login_manager.login_view="users.login"
 
 class User(UserMixin):
-    def __init__(self, id,username="admin",password="password"):
+    def __init__(self, id,username="admin@editorlabs.com",password="password"):
         self.id = id
         self.name=username
-      #  self.password=self.name+"_secret"
         self.password=password
 
     def get_id(self):
@@ -29,30 +27,23 @@ class User(UserMixin):
         return "%d %s %s" %(self.id,self.name
                             ,self.password)
 
-#users = [User(id) for id in range(1,21)]
-
 @app.route('/')
 def home():
     if not session.get('logged_in'):
-        return render_template('loginLatest.html')
+        return render_template('login.html')
     else:
         return "Hello Boss ! <a href='/logout'>logout</a>"
 
 @app.route('/login', methods = ['POST'])
 def adminlogin():
-    username = request.form['username']
-    password = request.form['password']
-       # id = username.split(':')[1]
-    if username == 'admin' and password == 'password':
+    username = request.form['Email address']
+    password = request.form['Password']
+    if username == 'admin@editorlabs.com' and password == 'password':
         session['logged_in']=True
         user= User(username,password,4)
         login_user(user)
-       # user_logged_in(user)
-       # flash('User is logged in successfully')
-        #    next = request.args.get('main')
-        #    return render_template('login.html')
     else:
-        flash('Please enter correct username and password')
+        flash('Please enter correct email address and password')
     return home()
 
 def login_required(f):
@@ -70,9 +61,8 @@ def login_required(f):
 @login_required
 def logout():
     session['logged_in'] = False
-   # user_logged_out(user)
+    logout_user()
     flash("You have been logged out")
-  #  gc.collect()
     return home()
 
 
