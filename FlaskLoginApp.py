@@ -37,13 +37,13 @@ def home():
 @app.route('/login', methods = ['POST'])
 def adminlogin():
     username = request.form['Email address']
-    password = request.form['Password']
-    if username == 'admin@editorlabs.com' and password == 'password':
+    # password = request.form['Password']
+    if username == 'admin@editorlabs.com':
         session['logged_in']=True
-        user= User(username,password,4)
+        user= User(4,username)
         login_user(user)
     else:
-        flash('Please enter correct email address and password')
+        flash('Please enter correct email address')
     return home()
 
 def login_required(f):
